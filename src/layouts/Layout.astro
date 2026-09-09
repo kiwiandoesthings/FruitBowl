@@ -1,0 +1,39 @@
+---
+import Navbar from "../components/Navbar.astro"
+interface Props {
+	preface?: boolean;
+  	title: string;
+}
+const { preface, title: rawTitle } = Astro.props;
+const pageTitle = preface ? "FruitBowlForums " + rawTitle : rawTitle;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<script src="../scripts/common.js"></script>
+		<title>{pageTitle}</title>
+	</head>
+	<body>
+		<Navbar></Navbar>
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style>
+	html, body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	main {
+		
+	}
+</style>
