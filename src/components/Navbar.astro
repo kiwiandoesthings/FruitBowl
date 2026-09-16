@@ -7,7 +7,7 @@ const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
 const username = Astro.cookies.get("fruitbowl_username")?.value as string;
 
 const pfpResponse = await api("users/" + userID, {}, "GET");
-const pfpUrl = isNullOrWhitespace(pfpResponse.data.profilePictureUrl as string) ? jimothy : pfpResponse.data.profilePictureUrl;
+const pfpUrl = isNullOrWhitespace(pfpResponse.data.profile_picture_url as string) ? jimothy : pfpResponse.data.profile_picture_url;
 
 const authResponse = await api("auth", {}, "GET", Astro.request);
 ---
@@ -17,7 +17,7 @@ const authResponse = await api("auth", {}, "GET", Astro.request);
 	<div id="link-area">
 		<a href="/">Home</a>
 		<a href="/forums">Forums</a>
-		<a href="/friends">Friends</a>
+		<a href="/users">Users</a>
 		<a href="/settings">Settings</a>
 		{!authResponse.data.loggedIn && (
 			<a href="/login">Login</a>

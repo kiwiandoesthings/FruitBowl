@@ -10,7 +10,7 @@ interface Props {
 }
 const { userID, username, join_date } = Astro.props;
 
-const pfpUrl = (await api("users/" + userID, {}, "GET")).data.profilePictureUrl;
+const pfpUrl = (await api("users/" + userID, {}, "GET")).data.profile_picture_url;
 const pfpLink = pfpUrl != "" ? pfpUrl : jimothy;
 
 const formattedDate = new Date(join_date).toLocaleDateString(undefined);

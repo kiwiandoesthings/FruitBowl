@@ -1,0 +1,47 @@
+---
+interface Props {
+	id: string,
+	username: string,
+	profile_picture_url: string,
+	description: string,
+	signature: string,
+	created_at: string
+};
+
+const { id, username, profile_picture_url, description, signature, created_at } = Astro.props;
+const createdAtString = new Date(created_at).toLocaleDateString(undefined);
+---
+
+<a class="link-nostyle" href={"/users/@" + username}>
+	<div class="user-result">
+		<div class="user-result-header">
+			<h3>{username}</h3>
+			<h3>{createdAtString}</h3>
+		</div>
+		<div class="user-result-body">
+			<p>{description}</p>
+			{profile_picture_url != "" && (
+				<>
+				<hr class="contrast-hr">
+				<div class="user-result-signature" set:html={signature}></div>
+				</>
+			)}
+		</div>
+	</div>
+</a>
+
+<style>
+	.user-result {
+		display: flex;
+		flex-direction: column;
+		background-color: grey;
+		box-shadow: 4px 4px 0px 0px black;
+		padding: 10px;
+	}
+
+	.user-result-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+</style>

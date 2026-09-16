@@ -20,24 +20,23 @@ export default async function api(route: string, body: any, method: string, requ
         let url = apiString + route;
 
         if (method.toUpperCase() === "GET") {
-            if (body && Object.keys(body).length > 0) {
-                const cleanEntries = Object.entries(body).filter(([discard, value]) => value !== null && value !== undefined && value !== "").map(([key, value]) => [key, String(value)] as [string, string]);
-        
-        		if (cleanEntries.length > 0) {
-            		var params = new URLSearchParams(cleanEntries);
-            		url += "?" + params.toString();
+   			let cleanEntries: [string, string][] = [];
+
+    		if (body instanceof FormData) {
+        		for (const [key, value] of body.entries()) {
+        		    if (value !== null && value !== undefined && value !== "") {
+        		        cleanEntries.push([key, String(value)]);
+        		    }
         		}
-            }
-        } else if (isFormData) {
-            fetchOptions.body = body;
-        } else {
-            fetchOptions.body = JSON.stringify(body);
-            fetchOptions.headers = {
-                "Content-Type": "application/json",
-                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
-                ...customHeaders
-            };
-        }
+    		} else if (body && Object.keys(body).length > 0) {
+    		    cleanEntries = Object.entries(body).filter(([_, value]) => value !== null && value !== undefined && value !== "").map(([key, value]) => [key, String(value)]);
+    		}
+
+    		if (cleanEntries.length > 0) {
+        		let params = new URLSearchParams(cleanEntries);
+    			url += "?" + params.toString();
+    		}
+		}
 
         var response = await fetch(url, fetchOptions);
 

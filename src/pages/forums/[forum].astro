@@ -22,7 +22,7 @@ const topicsResponse = await api("forums/" + forum + "/topics", {}, "GET");
 const forumResponse = await api("forums/" + forum, {}, "GET");
 const forumCreateDate = new Date(forumResponse.data.created_at).toLocaleDateString(undefined);
 const creatorResponse = await api("users/" + forumResponse.data.creator_id, {}, "GET");
-const creatorProfilePhoto = creatorResponse.data.profilePictureUrl != "" ? creatorResponse.data.profilePictureUrl : jimothy;
+const creatorProfilePhoto = creatorResponse.data.profile_picture_url != "" ? creatorResponse.data.profile_picture_url : jimothy;
 console.log(creatorResponse);
 ---
 
@@ -55,6 +55,10 @@ console.log(creatorResponse);
 		display: flex;
 		flex-direction: column;
 		gap: 50px;
+	}
+
+	#forum-info-area {
+		box-shadow: 4px 4px 0px 0px black;
 	}
 
 	#forum-info-header {

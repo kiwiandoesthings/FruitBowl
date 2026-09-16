@@ -54,3 +54,8 @@ form {
 	color: inherit;
 	text-decoration: none;
 }
+
+.contrast-hr {
+	border: 1px black solid;
+	width: 100%;
+}

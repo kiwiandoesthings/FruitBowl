@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import UserResult from "../components/UserResult.astro";
+import api from "../scripts/common";
+
+interface User {
+	id: string,
+	username: string,
+	profile_picture_url: string,
+	description: string,
+	signature: string,
+	created_at: string
+};
+
+const query = Astro.url.searchParams.get("query") || "";
+const searchType = Astro.url.searchParams.get("searchType") || "true";
+
+const response = await api("users/search?query=" + query + "&searchType=" + searchType, {}, "GET");
+---
+
+<Layout preface={true} title="Users">
+	<h1>Users</h1>
+	<div id="user-area">
+		<p id="status"></p>
+		<form id="user-form">
+			<label>Query: <input id="search-input" name="query" value={query} required>
+			</label>
+			<label>
+				<input id="search-username-select" type="radio" name="searchType" value="true" checked={searchType === "true"}>Username
+			</label>
+			<label>
+				<input id="search-user-id-select" type="radio" name="searchType" value="false" checked={searchType === "false"}>User ID
+			</label>
+			<button type="submit">Search</button>
+		</form>
+	</div>
+	<div id="results-area">
+		{response.data.map((user: User) => (
+			<UserResult id={user.id} username={user.username} profile_picture_url={user.profile_picture_url} description={user.description} signature={user.signature} created_at={user.created_at}></UserResult>
+		))}
+	</div>
+</Layout>
+
+<script>
+	const form = document.getElementById("user-form")! as HTMLFormElement;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		window.location.href = "/users/?query=" + formData.get("query") + "&searchType=" + formData.get("searchType");
+	});
+</script>
+
+<style>
+	#results-area {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+</style>
