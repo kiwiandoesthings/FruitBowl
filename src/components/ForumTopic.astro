@@ -1,0 +1,39 @@
+---
+interface Props {
+	forum: string;
+	name: string;
+	description: string;
+	total_posts: number;
+	locked: boolean;
+	creator_id: string;
+	created_at: string;
+}
+const { forum, name, description, total_posts, locked, creator_id, created_at } = Astro.props;
+---
+<a class="link-nostyle" href={`/forums/${forum}/topics/${name}`}>
+	<div class="forum-topic">
+		<div class="forum-topic-header">
+			<h3 class="forum-topic-title">{name}</h3>
+			<h3 class="forum-topic-totalposts">{total_posts + (total_posts == 1 ? " Post" : " Posts")}</h3>
+		</div>
+		<p class="forum-topic-description">{description}</p>
+	</div>
+</a>
+
+<style>
+	.forum-topic {
+		background-color: grey;
+		box-shadow: 4px 4px 0px 0px black;
+		padding: 10px;
+	}
+
+	.forum-topic-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+	.forum-topic-title {
+		margin: 0px;
+	}
+</style>

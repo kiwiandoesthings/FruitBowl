@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout preface={true} title="Login">
+	<h1>Login</h1>
+	<p id="status"></p>
+	<form id="login-form">
+		<label for="username-input">Username: </label>
+		<input id="username-input" name="username">
+
+		<label for="password-input">Password: </label>
+		<input id="password-input" name="password">
+
+		<button type="submit">Login</button>
+	</form>
+</Layout>
+
+<script>
+	import api from "../scripts/common";
+
+	const form = document.getElementById("login-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("auth", formData, "POST");
+		if (response.error) {
+			status.innerText = "Encountered an error while logging in: " + response.data;
+		} else {
+			window.location.href = "/users/@" + formData.get("username");
+		}
+	});
+</script>

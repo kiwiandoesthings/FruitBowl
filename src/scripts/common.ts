@@ -1,27 +1,42 @@
 const isDevelopment = import.meta.env.DEV;
-const apiString = isDevelopment ? "https://api.test.kiwiandoesthings.place/forums/" : "https://api.kiwiandoesthings.place/forums/";
+export const apiString = isDevelopment ? "http://api.test.kiwiandoesthings.place:5201/fruitbowl/" : "https://api.kiwiandoesthings.place/fruitbowl/";
 
 const serverErrorMessage = "Server is down currently. Please try again later.";
 const netErrorMessage = "Encountered a network error. Please try again.";
-export async function api(route: string, body: any, method: string): Promise<ApiResponse<any>> {
+export default async function api(route: string, body: any, method: string, request?: Request | null, customHeaders?: HeadersInit): Promise<ApiResponse<any>> {
     try {
+        const isFormData = body instanceof FormData;
+        const cookieHeader = request ? request.headers.get("cookie") || "" : "";
+
         var fetchOptions: RequestInit = {
             method: method.toUpperCase(),
+            credentials: "include" as RequestCredentials,
             headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include" as RequestCredentials
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
+                ...customHeaders
+            }
         };
 
         let url = apiString + route;
 
         if (method.toUpperCase() === "GET") {
             if (body && Object.keys(body).length > 0) {
-                var params = new URLSearchParams(body);
-                url += "?" + params.toString();
+                const cleanEntries = Object.entries(body).filter(([discard, value]) => value !== null && value !== undefined && value !== "").map(([key, value]) => [key, String(value)] as [string, string]);
+        
+        		if (cleanEntries.length > 0) {
+            		var params = new URLSearchParams(cleanEntries);
+            		url += "?" + params.toString();
+        		}
             }
+        } else if (isFormData) {
+            fetchOptions.body = body;
         } else {
             fetchOptions.body = JSON.stringify(body);
+            fetchOptions.headers = {
+                "Content-Type": "application/json",
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
+                ...customHeaders
+            };
         }
 
         var response = await fetch(url, fetchOptions);
@@ -34,8 +49,8 @@ export async function api(route: string, body: any, method: string): Promise<Api
             return new ApiResponse<string>(true, response.status, "Error " + response.status + ": " + unknownErrorMessage);
         }
 
-		var data = null;
-		var contentType = response.headers.get("content-type");
+        var data = null;
+        var contentType = response.headers.get("content-type");
         var text = await response.text();
 
         if (text && contentType && contentType.includes("application/json")) {
@@ -52,19 +67,20 @@ export async function api(route: string, body: any, method: string): Promise<Api
     }
 }
 
-export async function apiGetBinary(route: string, body: any): Promise<ApiResponse<ArrayBuffer>> {
-	try {
-		let fetchOptions: RequestInit = {
+export async function apiGetBinary(route: string, body: any, request?: Request | null): Promise<ApiResponse<ArrayBuffer>> {
+    try {
+        const cookieHeader = request ? request.headers.get("cookie") || "" : "";
+         var fetchOptions: RequestInit = {
             method: "GET",
+            credentials: "include" as RequestCredentials,
             headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include" as RequestCredentials
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {})
+            }
         };
 
         let url = apiString + route;
 
-		var response = await fetch(url, fetchOptions);
+        var response = await fetch(url, fetchOptions);
 
         if (response.status == 500) {
             return new ApiResponse<ArrayBuffer>(true, 500, new ArrayBuffer(0));
@@ -75,11 +91,11 @@ export async function apiGetBinary(route: string, body: any): Promise<ApiRespons
         }
 
         return new ApiResponse<ArrayBuffer>(!response.ok, response.status, await response.arrayBuffer());
-	} catch (error) {
-		console.log(netErrorMessage);
-		console.log(error);
-		return new ApiResponse<ArrayBuffer>(true, 0, new ArrayBuffer(0));
-	}
+    } catch (error) {
+        console.log(netErrorMessage);
+        console.log(error);
+        return new ApiResponse<ArrayBuffer>(true, 0, new ArrayBuffer(0));
+    }
 }
 
 class ApiResponse<T> {
@@ -93,3 +109,7 @@ class ApiResponse<T> {
 		this.data = data;
 	}
 }
+
+export function isNullOrWhitespace(str: string | null | undefined): boolean {
+    return !str || str.trim().length === 0;
+};

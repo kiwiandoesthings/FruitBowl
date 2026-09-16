@@ -1,30 +1,62 @@
 ---
-import { apiGetBinary } from '../scripts/common.js';
+import { Image } from 'astro:assets';
+import jimothy from '../assets/jimothy.png';
+import api, { isNullOrWhitespace } from "../scripts/common.ts";
 
-const userID = "abcdefgh";
-const pfpResponse = await apiGetBinary("/forums/users/" + userID + "/image", {});
-const arrayBuffer = await pfpResponse.data;
-let pfpUrl = "/default-avatar.png";
+const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
+const username = Astro.cookies.get("fruitbowl_username")?.value as string;
 
-if (!pfpResponse.error) {
-    const base64 = Buffer.from(pfpResponse.data).toString('base64');
-    pfpUrl = `data:image/png;base64,${base64}`;
-}
+const pfpResponse = await api("users/" + userID, {}, "GET");
+const pfpUrl = isNullOrWhitespace(pfpResponse.data.profilePictureUrl as string) ? jimothy : pfpResponse.data.profilePictureUrl;
+
+const authResponse = await api("auth", {}, "GET", Astro.request);
 ---
 
 <nav id="navbar">
-	<div>
-
+	<a href={`/users/@${username}`}><Image src={pfpUrl} alt="Your Profile" quality="max" loading="eager" fetchpriority="high" width={64} height={64}></Image></a>
+	<div id="link-area">
+		<a href="/">Home</a>
+		<a href="/forums">Forums</a>
+		<a href="/friends">Friends</a>
+		<a href="/settings">Settings</a>
+		{!authResponse.data.loggedIn && (
+			<a href="/login">Login</a>
+			<a href="/register">Register</a>
+		)}
 	</div>
-	<a href={`/user/@${userID}`}><img src={pfpUrl} alt="Your Profile Picture"></a>
 </nav>
 
 <style>
 	#navbar {
-		height: 60px;
+		height: 64px;
 		width: 100%;
 		display: flex;
 		flex-direction: row;
 		background-color: black;
+		align-items: center;
+		gap: 20px;
 	}
+
+	#link-area {
+		display: flex;
+		flex-direction: row;
+		gap: 20px;
+	}
+
+	#link-area a {
+		color: white;
+	}
+
+	#navbar a {
+        height: 100%;
+    }
+
+	#navbar img {
+		image-rendering: pixelated;
+        height: 100%;
+        width: auto;
+        border: 0px white solid;
+        box-sizing: border-box;
+        object-fit: cover;
+    }
 </style>

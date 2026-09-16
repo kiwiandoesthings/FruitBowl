@@ -1,0 +1,57 @@
+---
+import api from '../scripts/common';
+import { Image } from 'astro:assets';
+import jimothy from '../assets/jimothy.png';
+
+interface Props {
+	userID: string;
+	username: string;
+	join_date: string;
+}
+const { userID, username, join_date } = Astro.props;
+
+const pfpUrl = (await api("users/" + userID, {}, "GET")).data.profilePictureUrl;
+const pfpLink = pfpUrl != "" ? pfpUrl : jimothy;
+
+const formattedDate = new Date(join_date).toLocaleDateString(undefined);
+---
+
+<div class="post-user-info">
+	<a class="link-nostyle" href={"/users/@" + username}>
+		<h3 class="post-user-username">{username}</h3>
+		<Image class="post-user-image" src={pfpLink} quality="max" alt={username} width={128} height={128}></Image>
+	</a>
+	<h6 class="post-user-joindate">Joined {formattedDate}</h6>
+</div>
+
+<style>
+	.post-user-info {
+		display: flex;
+		flex-direction: column;
+		padding: 10px;
+		background-color: darkgrey;
+		width: min-content;
+		box-sizing: border-box;
+	}
+
+	.post-user-username {
+		text-align: center;
+        overflow-wrap: break-word;
+        word-break: break-word;
+	}
+
+	.post-user-image {
+		align-self: center;
+		width: 128;
+		height: 128;
+		image-rendering: pixelated;
+	}
+
+	.post-user-joindate {
+		text-align: center;
+		background-color: grey;
+		width: fit-content;
+		margin: 10px auto 0px auto;
+		padding: 5px;
+	}
+</style>

@@ -1,0 +1,36 @@
+---
+interface Props {
+	name: string;
+	description: string;
+	creator_id: string;
+	created_at: string;
+}
+const { name, description, creator_id, created_at } = Astro.props;
+---
+<a class="link-nostyle" href={`/forums/${name}`}>
+	<div class="forum">
+		<div class="forum-header">
+			<h3 class="forum-title">{name}</h3>
+			<h3 class="forum-creator"></h3>
+		</div>
+		<p class="forum-description">{description}</p>
+	</div>
+</a>
+
+<style>
+	.forum {
+		background-color: grey;
+		box-shadow: 4px 4px 0px 0px black;
+		padding: 10px;
+	}
+
+	.forum-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+	.forum-title {
+		margin: 0px;
+	}
+</style>

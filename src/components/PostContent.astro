@@ -1,0 +1,43 @@
+---
+interface Props {
+	content: string;
+	signature: string;
+}
+const { content, signature } = Astro.props;
+
+const hasSignature = Boolean(signature && signature.trim());
+---
+
+<div class="post-content">
+	<div class="post-content-content" set:html={content}></div>
+	{hasSignature && (
+        <div>
+            <hr class="post-content-separator">
+            <div class="post-content-signature" set:html={signature}></div>
+        </div>
+    )}
+</div>
+
+<style>
+	.post-content {
+		background-color: darkgrey;
+		flex: 1;
+		padding: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		white-space: break-spaces;
+	}
+
+	.post-content-content {
+	}
+
+	.post-content-separator {
+		border: 1px black solid;
+		width: 100%;
+	}
+
+	.post-content-signature {
+		
+	}
+</style>

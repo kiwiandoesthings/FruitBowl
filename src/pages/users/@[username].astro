@@ -1,0 +1,128 @@
+---
+import { Image } from 'astro:assets';
+import jimothy from '../../assets/jimothy.png';
+import Layout from "../../layouts/Layout.astro";
+import api from "../../scripts/common";
+
+export const prerender = false;
+
+let username = Astro.params.username?.replace("@", "") as string;
+let profilePictureUrl = jimothy;
+let description = "";
+let signature = "";
+let appendMessage = "";
+
+const response = await api("users/name/" + username, {}, "GET");
+if (response.error) {
+	if (response.status == 404) {
+		appendMessage = "Does Not Exist";
+	}
+} else {
+	if (response.data.profilePictureUrl != "") {
+		profilePictureUrl = response.data.profilePictureUrl;
+	}
+	description = response.data.description;
+	signature = response.data.signature;
+}
+---
+
+<Layout preface={false} title={username}>
+	<div id="profile-container">
+		<div id="sidebar-left">
+        	<div class="section">Example Stuff</div>
+    	</div>
+
+		<div id="pfp-area">
+    	    <Image id="profile-picture" src={profilePictureUrl} alt="Profile" quality="max" loading="eager" width={128} height={128}></Image>
+    	</div>
+
+		<div id="main-area" class="section">
+    	    <span class="bold">Description: </span>
+    	    <p id="profile-description">{description}</p>
+    	    <div id="profile-signature" set:html={signature}></div>
+    	</div>
+
+		<div id="username-area">
+    	    <h1>{username}'s Profile {appendMessage}</h1>
+    	</div>
+
+		 <aside id="sidebar-right" class="section">
+    	    <p>Left Column Content</p>
+    	</aside>
+	</div>
+</Layout>
+
+<style>
+	.section {
+		background-color: grey;
+		padding: 5px;
+	}
+
+	.section > * {
+		margin: 0px;
+	}
+
+	#profile-container {
+    	display: grid;
+    	grid-template-columns: 128px 3fr 1fr;
+    	grid-template-rows: auto 1fr;
+    	gap: 1.5rem;
+    	max-width: 1200px;
+    	margin: 0 auto;
+    	padding: 1rem;
+    	box-sizing: border-box;
+	}
+
+	#sidebar-left {
+	    grid-column: 1;
+	    grid-row: 2 / 3;
+	}
+
+	#username-area {
+	    grid-column: 2;
+	    grid-row: 1;
+	    display: flex;
+	    align-items: center;
+		font-size: 16px;
+	}
+
+	#main-area {
+	    grid-column: 2;
+	    grid-row: 2;
+	    display: flex;
+	    flex-direction: column;
+	    gap: 1rem;
+	}
+
+	#profile-description {
+		word-break: break-all;
+	}
+
+	#profile-signature {
+		word-break: break-all;
+		width: 100%;
+	}
+
+	#pfp-area {
+	    grid-column: 1;
+	    grid-row: 1;
+	    height: 100%;
+	}
+
+	#pfp-area img {
+		image-rendering: pixelated;
+	}
+
+	#profile-picture {
+	    width: 100%;
+	    height: 100%;
+	    object-fit: cover;
+	    border: 2px white solid;
+	    box-sizing: border-box;
+	}
+
+	#sidebar-right {
+	    grid-column: 3;
+	    grid-row: 1;
+	}
+</style>

@@ -1,0 +1,15 @@
+---
+interface Props {
+	forum: string | undefined;
+	topic: string | undefined;
+}
+const { forum, topic } = Astro.props;
+
+const first = forum != undefined ? ">" : "";
+const second = topic != undefined ? ">" : "";
+---
+
+<h1 class="link-nostyle"><a href="/forums">All Forums</a> {first} <a href={"/forums/" + forum}>{forum ?? ""}</a> {second} <a href={"/forums/" + forum + "/topics/" + topic}>{topic ?? ""}</a></h1>
+
+<style>
+</style>

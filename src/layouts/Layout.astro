@@ -1,11 +1,12 @@
 ---
-import Navbar from "../components/Navbar.astro"
+import "../styles/styles.css";
+import Navbar from "../components/Navbar.astro";
 interface Props {
 	preface?: boolean;
   	title: string;
 }
 const { preface, title: rawTitle } = Astro.props;
-const pageTitle = preface ? "FruitBowlForums " + rawTitle : rawTitle;
+const pageTitle = preface ? "FruitBowlForums" + (rawTitle.length > 1 ? " - " : "") + rawTitle : rawTitle;
 ---
 
 <!doctype html>
@@ -21,19 +22,8 @@ const pageTitle = preface ? "FruitBowlForums " + rawTitle : rawTitle;
 	<body>
 		<Navbar></Navbar>
 		<main>
+			<slot name="header" />
 			<slot />
 		</main>
 	</body>
 </html>
-
-<style>
-	html, body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-
-	main {
-		
-	}
-</style>

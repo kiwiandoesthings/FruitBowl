@@ -1,0 +1,92 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import ForumTopic from "../../components/ForumTopic.astro";
+import HeirarchyBar from "../../components/HeirarchyBar.astro";
+import jimothy from "../../assets/jimothy.png";
+import api from "../../scripts/common";
+
+const forum = Astro.params.forum as string;
+
+interface Topic {
+    id: string; 
+	name: string; 
+	description: string; 
+	total_posts: number; 
+	locked: boolean; 
+	creator_id: string; 
+	created_at: string;
+}
+
+const topicsResponse = await api("forums/" + forum + "/topics", {}, "GET");
+const forumResponse = await api("forums/" + forum, {}, "GET");
+const forumCreateDate = new Date(forumResponse.data.created_at).toLocaleDateString(undefined);
+const creatorResponse = await api("users/" + forumResponse.data.creator_id, {}, "GET");
+const creatorProfilePhoto = creatorResponse.data.profilePictureUrl != "" ? creatorResponse.data.profilePictureUrl : jimothy;
+console.log(creatorResponse);
+---
+
+<Layout preface={true} title={forum}>
+	<HeirarchyBar forum={forum} topic={undefined}></HeirarchyBar>
+	<div id="topic-area">
+		<div id="forum-info-area">
+			<div id="forum-info-header">
+				<h3>Created {forumCreateDate}</h3>
+				<a class="link-nostyle" href={"/users/@" + creatorResponse.data.username}>
+					<div id="forum-info-header-right">
+						<span style="margin: auto 10px auto 0px;">Created by</span>
+						<Image src={creatorProfilePhoto} width={32} height={32} quality="max" alt="Creator Profile"></Image>
+					</div>
+				</a>
+			</div>
+			<p>{forumResponse.data.description}</p>
+		</div>
+		<div id="topic-list">
+			{topicsResponse.data.map((topic: Topic) => (
+				<ForumTopic forum={forum} name={topic.name} description={topic.description} total_posts={topic.total_posts} locked={topic.locked} creator_id={topic.creator_id} created_at={topic.created_at}></ForumTopic>
+			))}
+		</div>
+		<a id="new-topic-button" href={"/forums/" + forum + "/topics/new"}>Start a New Topic</a>
+	</div>
+</Layout>
+
+<style>
+	#topic-area {
+		display: flex;
+		flex-direction: column;
+		gap: 50px;
+	}
+
+	#forum-info-header {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	#forum-info-header-right {
+		display: flex;
+		align-content: center;
+	}
+
+	#forum-info-area {
+		background-color: grey;
+		padding: 10px;
+	}
+
+	#topic-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	#new-topic-button {
+		padding: 15px;
+		background-color: darkgrey;
+		box-shadow: 4px 4px 0px 0px black;
+		margin: auto;
+		color: black;
+	}
+</style>
+
+<script>
+
+</script>

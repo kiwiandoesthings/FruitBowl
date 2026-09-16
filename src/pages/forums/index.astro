@@ -1,0 +1,53 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Forum from "../../components/Forum.astro";
+import HeirarchyBar from "../../components/HeirarchyBar.astro";
+import api from "../../scripts/common";
+
+interface Forum {
+	name: string;
+	description: string;
+	creator_id: string;
+	created_at: string;
+};
+
+const forumSearch = Astro.url.searchParams.get("forumName");
+
+const response = await api("forums", {
+	forum: forumSearch
+}, "GET");
+---
+
+<Layout preface={true} title="">
+	<HeirarchyBar forum={undefined} topic={undefined}></HeirarchyBar>
+	<div id="forum-area">
+		<div id="forum-list">
+			{response.data.map((forum: Forum) => (
+				<Forum name={forum.name} description={forum.description} creator_id={forum.creator_id} created_at={forum.created_at}></Forum>
+			))}
+		</div>
+		<a id="new-forum-button" href={"/forums/new"}>Create a New Forum</a>
+	</div>
+</Layout>
+
+<style>
+	#forum-area {
+		display: flex;
+		flex-direction: column;
+		gap: 50px;
+	}
+
+	#forum-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	#new-forum-button {
+		padding: 15px;
+		background-color: darkgrey;
+		box-shadow: 4px 4px 0px 0px black;
+		margin: auto;
+		color: black;
+	}
+</style>

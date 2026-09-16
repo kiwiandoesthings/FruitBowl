@@ -1,0 +1,55 @@
+---
+import Layout from "../layouts/Layout.astro";
+import api from "../scripts/common";
+
+const userID = Astro.cookies.get("fruitbowl_user_id")?.value;
+
+const response = await api("users/" + userID, {}, "GET");
+const username = response.data.username;
+const description = response.data.description;
+console.log(description);
+const signature = response.data.signature;
+---
+
+<Layout preface={true} title="Settings">
+	<div id="session-data" data-username={username}></div>
+
+	<h1>Settings</h1>
+	<p id="status"></p>
+	<form id="settings-form">
+		<aside>Leave any fields you don't wish to update blank.</aside>
+
+		<label for="username-input">New Username: </label>
+		<input id="username-input" name="username" value={username}>
+
+		<label for="description-input">New Description: </label>
+		<textarea id="description-input" name="description">{description}</textarea>
+
+		<label for="signature-input">New Signature: </label>
+		<textarea id="signature-input" name="signature">{signature}</textarea>
+
+		<button type="submit">Save</button>
+	</form>
+</Layout>
+
+<script>
+	import api from "../scripts/common";
+
+	const form = document.getElementById("settings-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	const username = document.getElementById("session-data")?.dataset.username;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("users/self", formData, "PUT");
+		if (response.error) {
+			status.innerText = "Encountered an error while updating settings: " + response.data;
+		} else {
+			const targetUsername = formData.get("username") || username;
+			window.location.href = "/users/@" + targetUsername;
+		}
+	});
+</script>

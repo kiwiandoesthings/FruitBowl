@@ -1,0 +1,269 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import PostUserInfo from "../../../../components/PostUserInfo.astro";
+import PostContent from "../../../../components/PostContent.astro";
+import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
+import api from "../../../../scripts/common";
+
+const forum = Astro.params.forum as string;
+const topic = Astro.params.topic as string;
+
+const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
+const username = Astro.cookies.get("fruitbowl_username")?.value as string;
+const response = await api("users/" + userID, {}, "GET");
+const join_date = response.data.created_at;
+
+interface Author {
+	id: string;
+	username: string;
+	description: string;
+	signature: string;
+	profile_picture_url: string;
+	created_at: string;
+}
+
+interface Post {
+    id: string; 
+	content: string; 
+	show_signature: boolean;
+	deleted: boolean; 
+	creator_id: string; 
+	created_at: string;
+	author: Author;
+}
+
+const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "GET", Astro.request);
+---
+
+<Layout preface={false} title={forum + " - " + topic}>
+	<div id="session-data" data-forum={forum} data-topic={topic}></div>
+
+	<HeirarchyBar forum={forum} topic={topic}></HeirarchyBar>
+	<div id="topic-container">
+		<div id="posts-list">
+			{posts.data.posts.map((post: Post) => {
+				const isoDate = post.created_at.includes("Z") ? post.created_at : post.created_at.replace(" ", "T") + "Z";
+				return (
+				<div id={"post-" + post.id} class="topic-reply outline">
+					<div class="post-header">
+						<span class="utc-date" data-utc={isoDate}>{post.created_at}</span>
+						<div class="menu-container">
+        					<button type="button" class="menu-trigger" aria-label="Post actions">⋮</button>
+        					<div class="dropdown-menu hidden">
+            					<button class="menu-item copy-link-button" data-post-id={post.id}>Copy Link</button>
+            					{
+									post.id == posts.data.deletablePostID && (
+                						<button id="delete-post-button" class="menu-item">Delete</button>
+            						)
+								}
+        					</div>
+    					</div>	
+					</div>
+					<div class="post-body">
+						<PostUserInfo userID={post.author.id} username={post.author.username} join_date={post.author.created_at}></PostUserInfo>
+    					<PostContent content={post.content} signature={post.show_signature ? post.author.signature : ""}></PostContent>
+					</div>
+				</div>
+				);
+			})}
+			<div class="post-body outline">
+				<PostUserInfo userID={userID} username={username} join_date={join_date}></PostUserInfo>
+				<form id="reply-form">
+					<h3 id="reply-header">Reply</h3>
+					<p id="status"></p>
+					<textarea id="reply-content-input" name="content" rows="10" required></textarea>
+					<div id="checkbox-area">
+						<label for="show-signature-input">Show Signature: </label>
+						<input id="show-signature-input" type="checkbox" name="showSignature" value="true" checked>
+					</div>
+					<div id="button-area">
+						<button type="submit">Post</button>
+						<button id="preview-button">Preview</button>
+						<button id="clear-button">Clear</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	import api from "../../../../scripts/common";
+
+	document.querySelectorAll<HTMLElement>(".utc-date").forEach((element) => {
+        const utcString = element.dataset.utc;
+        if (!utcString) return;
+        element.textContent = "Posted " + new Date(utcString).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        });
+    });
+
+	const form = document.getElementById("reply-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	const forum = document.getElementById("session-data")?.dataset.forum;
+	const topic = document.getElementById("session-data")?.dataset.topic;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("forums/" + forum + "/topics/" + topic + "/posts", formData, "POST");
+		if (response.error) {
+			status.innerText = "Encountered an error while posting reply: " + response.data;
+		} else {
+			status.innerText = "";
+			window.location.reload();
+		}
+	});
+
+	document.addEventListener("click", (event) => {
+    	const target = event.target as HTMLElement;
+    	const isTrigger = target.closest(".menu-trigger");
+
+
+    	document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    	    if (!isTrigger || menu !== isTrigger.nextElementSibling) {
+    	        menu.classList.add("hidden");
+    	    }
+    	});
+
+    	if (isTrigger) {
+    	    const menu = isTrigger.nextElementSibling as HTMLElement;
+    	    menu.classList.toggle("hidden");
+    	}
+	});
+
+	document.addEventListener("keydown", (event) => {
+	    if (event.key === "Escape") {
+	        document.querySelectorAll(".dropdown-menu").forEach((menu) => menu.classList.add("hidden"));
+	    }
+	});
+
+	const deletePostButton = document.getElementById("delete-post-button") as HTMLElement;
+	deletePostButton?.addEventListener("click", async (event) => {
+		const target = event.currentTarget as HTMLElement;
+
+        if (!confirm("Are you sure you want to delete this post?")) return;
+
+        const forum = document.getElementById("session-data")?.dataset.forum;
+        const topic = document.getElementById("session-data")?.dataset.topic;
+
+        const response = await api(forum + "/" + topic + "/posts/" + -1, {}, "DELETE");
+        if (response.error) {
+            alert("Error deleting post: " + response.data);
+        } else {
+            window.location.reload();
+        }
+	});
+
+	document.querySelectorAll(".copy-link-button").forEach((button) => {
+    	button.addEventListener("click", async (event) => {
+        	const target = event.currentTarget as HTMLElement;
+        	const postId = target.dataset.postId;
+        	const url = window.location.origin + window.location.pathname + "#post-" + postId;
+
+        	const textarea = document.createElement("textarea");
+    		textarea.value = url;
+    		textarea.style.position = "fixed";
+    		textarea.style.opacity = "0";
+    		document.body.appendChild(textarea);
+    		textarea.focus();
+    		textarea.select();
+    		try {
+        		document.execCommand("copy");
+    		} catch (error) {
+        		console.error("Failed to copy text: ", error);
+    		}
+    		document.body.removeChild(textarea);
+	    }
+	)});
+</script>
+
+<style>
+	.menu-container {
+		position: relative;
+		width: fit-content;
+	}
+
+	.menu-trigger {
+    	cursor: pointer;
+    	padding: 0 5px;
+	}
+
+	.dropdown-menu {
+   		position: absolute;
+    	right: 0;
+    	top: 100%;
+    	display: flex;
+    	flex-direction: column;
+		width: max-content;
+	}
+
+	.dropdown-menu.hidden {
+    	display: none;
+	}
+
+	.topic-reply {
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.post-header {
+		background-color: darkgrey;
+		padding: 5px;
+		font-weight: bold;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+	.post-body {
+		display: flex;
+		flex-direction: row;
+	}
+
+	#posts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	#reply-form {
+		background-color: darkgrey;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+        box-sizing: border-box;
+	}
+
+	#reply-content-input {
+		width: 100%;
+		flex: 1;
+		min-height: 0;
+		box-sizing: border-box;
+	}
+
+	#reply-header {
+		align-self: flex-start;
+	}
+
+	#button-area {
+		align-self: flex-start;
+		display: flex;
+		flex-direction: row;
+		gap: 10px;
+	}
+
+	#status {
+		margin: 0px;
+		color: red;
+	}
+</style>

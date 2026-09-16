@@ -1,0 +1,39 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout preface={true} title="Register">
+	<h1>Register</h1>
+	<p id="status"></p>
+	<form id="register-form">
+		<label for="username-input">Username: </label>
+		<input id="username-input" name="username">
+
+		<label for="password-input">Password: </label>
+		<input id="password-input" name="password">
+
+		<label for="profile-picture-input">Profile Picture: </label>
+		<input id="profile-picture-input" type="file" name="profilePicture">
+
+		<button type="submit">Register</button>
+	</form>
+</Layout>
+
+<script>
+	import api from "../scripts/common";
+
+	const form = document.getElementById("register-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("users", formData, "POST");
+		if (response.error) {
+			status.innerText = "Encountered an error while registering: " + response.data;
+		} else {
+			window.location.href = "/users/@" + formData.get("username");
+		}
+	});
+</script>

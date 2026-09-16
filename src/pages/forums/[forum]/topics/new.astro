@@ -1,0 +1,42 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+
+const forum = Astro.params.forum as string;
+---
+
+<Layout preface={false} title={forum + " - New Topic"}>
+	<div id="session-data" data-forum={forum}></div>
+
+	<h1><a class="link-nostyle" href={"/forums/" + forum}>{forum}</a> &gt; <a class="link-nostyle" href={"/forums/" + forum + "/topics/new"}>New Topic</a></h1>
+	<p id="status"></p>
+	<form id="create-form">
+		<label for="name-input">Topic Name: </label>
+		<input id="name-input" name="name">
+
+		<label for="description-input">Topic Description: </label>
+		<textarea id="description-input" name="description"></textarea>
+
+		<button type="submit">Create</button>
+	</form>
+</Layout>
+
+<script>
+	import api from "../../../../scripts/common";
+
+	const form = document.getElementById("create-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	const forum = document.getElementById("session-data")?.dataset.forum;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("forums/" + forum + "/topics", formData, "POST");
+		if (response.error) {
+			status.innerText = "Encountered an error while creating topic: " + response.data;
+		} else {
+			window.location.href = "/forums/" + forum + "/topics/" + formData.get("name");
+		}
+	});
+</script>

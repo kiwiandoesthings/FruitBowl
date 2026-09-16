@@ -12,9 +12,16 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.2"
+    "@astrojs/node": "^11.1.5",
+    "argon2": "^0.45.1",
+    "astro": "^7.3.2",
+    "better-sqlite3": "^13.0.3"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.20.2"
   }
 }
