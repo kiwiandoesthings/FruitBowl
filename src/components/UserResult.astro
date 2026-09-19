@@ -20,7 +20,7 @@ const createdAtString = new Date(created_at).toLocaleDateString(undefined);
 		</div>
 		<div class="user-result-body">
 			<p>{description}</p>
-			{profile_picture_url != "" && (
+			{signature != "" && (
 				<>
 				<hr class="contrast-hr">
 				<div class="user-result-signature" set:html={signature}></div>
