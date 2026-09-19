@@ -1,4 +1,4 @@
-name = "fruit-bowl-forums"
+name = "fruitbowlforums"
 compatibility_date = "2026-01-01"
 
 [assets]
@@ -7,3 +7,7 @@ directory = "./dist"
 [[kv_namespaces]]
 binding = "SESSION"
 id = "a3ec509a4fef4dbcbb4732ee5df64908"
+
+[observability.logs]
+enabled = true
+invocation_logs = true
