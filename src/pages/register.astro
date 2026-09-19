@@ -5,15 +5,19 @@ import Layout from "../layouts/Layout.astro";
 <Layout preface={true} title="Register">
 	<h1>Register</h1>
 	<p id="status"></p>
-	<form id="register-form">
-		<label for="username-input">Username: </label>
-		<input id="username-input" name="username">
+	<form id="register-form" class="alone-form">
+        <label for="username-input">Username: </label>
+    	<input id="username-input" name="username" autocomplete="off">
 
-		<label for="password-input">Password: </label>
-		<input id="password-input" name="password">
+        <label for="password-input">Password: </label>
+        <input id="password-input" name="password" type="password" autocomplete="off">
 
-		<label for="profile-picture-input">Profile Picture: </label>
-		<input id="profile-picture-input" type="file" name="profilePicture">
+		<div class="form-file-input">
+			<label for="profile-picture-input">Profile Picture: </label>
+			<button id="file-upload-button" type="button">Choose File</button>
+			<span id="file-name">No file chosen</span>
+        	<input id="profile-picture-input" type="file" name="profilePicture" accept="image/*">
+		</div>
 
 		<button type="submit">Register</button>
 	</form>
@@ -36,4 +40,36 @@ import Layout from "../layouts/Layout.astro";
 			window.location.href = "/users/@" + formData.get("username");
 		}
 	});
+
+	const uploadButton = document.getElementById("file-upload-button")!;
+	const fileInput = document.getElementById('profile-picture-input') as HTMLInputElement;
+	const fileNameSpan = document.getElementById('file-name')!;
+
+	fileInput.addEventListener('change', () => {
+    	if (fileInput.files && fileInput.files.length > 0) {
+        	fileNameSpan.innerText = fileInput.files[0].name;
+    	} else {
+        	fileNameSpan.innerText = "No file chosen";
+    	}
+	});
+
+	uploadButton.addEventListener("click", () => {
+    	fileInput.click();
+	});
 </script>
+
+<style>
+	#profile-picture-input {
+    	display: none;
+	}
+
+	#file-upload-button {
+    	appearance: button;
+    	-webkit-appearance: button;
+    	-moz-appearance: button;
+	}
+
+	#file-upload-button:active {
+    	
+	}
+</style>

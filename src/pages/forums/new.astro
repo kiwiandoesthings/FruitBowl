@@ -1,0 +1,37 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import HeirarchyBar from "../../components/HeirarchyBar.astro";
+---
+
+<Layout preface={false} title={"New Forum"}>
+	<HeirarchyBar forum={"new"} topic={undefined}></HeirarchyBar>
+	<p id="status"></p>
+	<form id="create-form" class="alone-form">
+		<label for="name-input">Forum Name: </label>
+		<input id="name-input" name="name">
+
+		<label for="description-input">Forum Description: </label>
+		<textarea id="description-input" name="description"></textarea>
+
+		<button type="submit">Create</button>
+	</form>
+</Layout>
+
+<script>
+	import api from "../../scripts/common";
+
+	const form = document.getElementById("create-form")! as HTMLFormElement;
+	const status = document.getElementById("status")!;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const response = await api("forums/", formData, "POST");
+		if (response.error) {
+			status.innerText = "Encountered an error while creating forum: " + response.data;
+		} else {
+			window.location.href = "/forums/" + formData.get("name");
+		}
+	});
+</script>

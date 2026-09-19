@@ -1,7 +1,7 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import UserResult from "../components/UserResult.astro";
-import api from "../scripts/common";
+import Layout from "../../layouts/Layout.astro";
+import UserResult from "../../components/UserResult.astro";
+import api from "../../scripts/common";
 
 interface User {
 	id: string,
@@ -22,7 +22,7 @@ const response = await api("users/search?query=" + query + "&searchType=" + sear
 	<h1>Users</h1>
 	<div id="user-area">
 		<p id="status"></p>
-		<form id="user-form">
+		<form id="user-form" class="alone-form">
 			<label>Query: <input id="search-input" name="query" value={query} required>
 			</label>
 			<label>

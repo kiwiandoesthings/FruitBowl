@@ -9,7 +9,7 @@ export default defineConfig({
     mode: 'standalone'
   }),
   server: {
-	host: "fruitbowlforums.test.kiwiandoesthings.place",
+	host: "forums.test.kiwiandoesthings.place",
 	port: 4321
   },
   output: "server"

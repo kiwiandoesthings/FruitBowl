@@ -16,6 +16,8 @@ const response = await api("users/name/" + username, {}, "GET");
 if (response.error) {
 	if (response.status == 404) {
 		appendMessage = "Does Not Exist";
+	} else {
+		return Astro.rewrite("/503");
 	}
 } else {
 	if (response.data.profile_picture_url != "") {

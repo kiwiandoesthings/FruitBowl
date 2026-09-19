@@ -1,5 +1,6 @@
 ---
 import Layout from "../../../../layouts/Layout.astro";
+import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
 
 const forum = Astro.params.forum as string;
 ---
@@ -7,9 +8,9 @@ const forum = Astro.params.forum as string;
 <Layout preface={false} title={forum + " - New Topic"}>
 	<div id="session-data" data-forum={forum}></div>
 
-	<h1><a class="link-nostyle" href={"/forums/" + forum}>{forum}</a> &gt; <a class="link-nostyle" href={"/forums/" + forum + "/topics/new"}>New Topic</a></h1>
+	<HeirarchyBar forum={forum} topic={"new"}></HeirarchyBar>
 	<p id="status"></p>
-	<form id="create-form">
+	<form id="create-form" class="alone-form">
 		<label for="name-input">Topic Name: </label>
 		<input id="name-input" name="name">
 

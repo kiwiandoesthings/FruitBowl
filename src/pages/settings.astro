@@ -7,7 +7,6 @@ const userID = Astro.cookies.get("fruitbowl_user_id")?.value;
 const response = await api("users/" + userID, {}, "GET");
 const username = response.data.username;
 const description = response.data.description;
-console.log(description);
 const signature = response.data.signature;
 ---
 
@@ -16,17 +15,17 @@ const signature = response.data.signature;
 
 	<h1>Settings</h1>
 	<p id="status"></p>
-	<form id="settings-form">
+	<form id="settings-form" class="alone-form">
 		<aside>Leave any fields you don't wish to update blank.</aside>
 
 		<label for="username-input">New Username: </label>
-		<input id="username-input" name="username" value={username}>
+		<input id="username-input" name="username" value={username} autocomplete="off">
 
 		<label for="description-input">New Description: </label>
-		<textarea id="description-input" name="description">{description}</textarea>
+		<textarea id="description-input" name="description" autocomplete="off">{description}</textarea>
 
 		<label for="signature-input">New Signature: </label>
-		<textarea id="signature-input" name="signature">{signature}</textarea>
+		<textarea id="signature-input" name="signature" autocomplete="off">{signature}</textarea>
 
 		<button type="submit">Save</button>
 	</form>

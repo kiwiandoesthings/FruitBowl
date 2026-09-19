@@ -16,6 +16,10 @@ const forumSearch = Astro.url.searchParams.get("forumName");
 const response = await api("forums", {
 	forum: forumSearch
 }, "GET");
+if (response.status == -1) {
+	console.log(response)
+	return Astro.rewrite("/503");
+}
 ---
 
 <Layout preface={true} title="">

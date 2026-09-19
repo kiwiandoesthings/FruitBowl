@@ -40,10 +40,23 @@ form {
 	gap: 10px;
 }
 
-.form-input {
+.alone-form {
+	background-color: grey;
+	box-shadow: 4px 4px 0px 0px black;
+	width: fit-content;
+	margin: auto;
+	margin-bottom: 30px;
+}
+
+.form-file-input {
 	display: flex;
-	flex-direction: row;
-	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.form-file-input input {
+	width: min-content;
 }
 
 .outline {

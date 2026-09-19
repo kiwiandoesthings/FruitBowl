@@ -20,37 +20,44 @@ export default async function api(route: string, body: any, method: string, requ
         let url = apiString + route;
 
         if (method.toUpperCase() === "GET") {
-   			let cleanEntries: [string, string][] = [];
+            let cleanEntries: [string, string][] = [];
 
-    		if (body instanceof FormData) {
-        		for (const [key, value] of body.entries()) {
-        		    if (value !== null && value !== undefined && value !== "") {
-        		        cleanEntries.push([key, String(value)]);
-        		    }
-        		}
-    		} else if (body && Object.keys(body).length > 0) {
-    		    cleanEntries = Object.entries(body).filter(([_, value]) => value !== null && value !== undefined && value !== "").map(([key, value]) => [key, String(value)]);
-    		}
+            if (body instanceof FormData) {
+                for (const [key, value] of body.entries()) {
+                    if (value !== null && value !== undefined && value !== "") {
+                        cleanEntries.push([key, String(value)]);
+                    }
+                }
+            } else if (body && Object.keys(body).length > 0) {
+                cleanEntries = Object.entries(body).filter(([_, value]) => value !== null && value !== undefined && value !== "").map(([key, value]) => [key, String(value)]);
+            }
 
-    		if (cleanEntries.length > 0) {
-        		let params = new URLSearchParams(cleanEntries);
-    			url += "?" + params.toString();
-    		}
-		}
+            if (cleanEntries.length > 0) {
+                let params = new URLSearchParams(cleanEntries);
+                url += "?" + params.toString();
+            }
+        } else if (body !== null && body !== undefined) {
+            if (isFormData) {
+                fetchOptions.body = body;
+            } else {
+                (fetchOptions.headers as Record<string, string>)["Content-Type"] = "application/json";
+                fetchOptions.body = JSON.stringify(body);
+            }
+        }
 
-        var response = await fetch(url, fetchOptions);
+        const response = await fetch(url, fetchOptions);
 
         if (response.status == 500) {
             return new ApiResponse<string>(true, 500, serverErrorMessage);
         } else if (!response.ok) {
-            var unknownErrorMessage = await response.text();
+            const unknownErrorMessage = await response.text();
             console.log(unknownErrorMessage);
             return new ApiResponse<string>(true, response.status, "Error " + response.status + ": " + unknownErrorMessage);
         }
 
-        var data = null;
-        var contentType = response.headers.get("content-type");
-        var text = await response.text();
+        let data = null;
+        const contentType = response.headers.get("content-type");
+        const text = await response.text();
 
         if (text && contentType && contentType.includes("application/json")) {
             data = JSON.parse(text);
@@ -58,42 +65,16 @@ export default async function api(route: string, body: any, method: string, requ
             data = text;
         }
 
-        return new ApiResponse<any>(!response.ok, response.status, data);
+		const responseHeaders: Record<string, string> = {};
+        response.headers.forEach((value, key) => {
+            responseHeaders[key] = value;
+        });
+
+        return new ApiResponse<any>(!response.ok, response.status, data, responseHeaders);
     } catch (error) {
         console.log(netErrorMessage);
         console.error(error); 
-        return new ApiResponse<string>(true, 0, netErrorMessage);
-    }
-}
-
-export async function apiGetBinary(route: string, body: any, request?: Request | null): Promise<ApiResponse<ArrayBuffer>> {
-    try {
-        const cookieHeader = request ? request.headers.get("cookie") || "" : "";
-         var fetchOptions: RequestInit = {
-            method: "GET",
-            credentials: "include" as RequestCredentials,
-            headers: {
-                ...(cookieHeader ? { "Cookie": cookieHeader } : {})
-            }
-        };
-
-        let url = apiString + route;
-
-        var response = await fetch(url, fetchOptions);
-
-        if (response.status == 500) {
-            return new ApiResponse<ArrayBuffer>(true, 500, new ArrayBuffer(0));
-        } else if (!response.ok) {
-            var unknownErrorMessage = await response.text();
-            console.log(unknownErrorMessage);
-            return new ApiResponse<ArrayBuffer>(true, response.status, new ArrayBuffer(0));
-        }
-
-        return new ApiResponse<ArrayBuffer>(!response.ok, response.status, await response.arrayBuffer());
-    } catch (error) {
-        console.log(netErrorMessage);
-        console.log(error);
-        return new ApiResponse<ArrayBuffer>(true, 0, new ArrayBuffer(0));
+        return new ApiResponse<string>(true, -1, netErrorMessage);
     }
 }
 
@@ -101,11 +82,13 @@ class ApiResponse<T> {
 	error: boolean;
 	status: number;
 	data: T;
+	headers: Record<string, string> | undefined;
 
-	constructor(error: boolean, status: number, data: T) {
+	constructor(error: boolean, status: number, data: T, headers: Record<string, string> | undefined = undefined) {
 		this.error = error;
 		this.status = status;
 		this.data = data;
+		this.headers = headers;
 	}
 }
 

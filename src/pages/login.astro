@@ -5,12 +5,12 @@ import Layout from "../layouts/Layout.astro";
 <Layout preface={true} title="Login">
 	<h1>Login</h1>
 	<p id="status"></p>
-	<form id="login-form">
+	<form id="login-form" class="alone-form">
 		<label for="username-input">Username: </label>
-		<input id="username-input" name="username">
+		<input id="username-input" name="username" autocomplete="username">
 
 		<label for="password-input">Password: </label>
-		<input id="password-input" name="password">
+		<input id="password-input" name="password" autocomplete="password">
 
 		<button type="submit">Login</button>
 	</form>

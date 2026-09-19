@@ -1,0 +1,29 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const isDevelopment = import.meta.env.DEV;
+
+Astro.response.status = 503;
+---
+
+<Layout preface={true} title="Not Found">
+	<span id="session-data" data-development={isDevelopment}></span>
+
+	<h1>Error 503 - The Server Is Down</h1>
+	<p>You can <a href="javascript:(history.back())">go back</a> if you'd like, or you can check the server status.</p>
+	<button id="check-server-button">Check Server Status</button><br><br>
+	<span id="server-status-display"></span>
+</Layout>
+
+<script>
+	const statusDisplay = document.getElementById("server-status-display")!;
+	document.getElementById("check-server-button")?.addEventListener("click", async () => {
+		try {
+			const isDevelopment = document.getElementById("session-data")?.dataset.development;
+			const response = await fetch("https://api." + (isDevelopment ? "test." : "") + "kiwiandoesthings.place");
+			statusDisplay.innerText = !response.ok ? "Server returned error: " + response.status + " but is still online!" : "Server is online!";
+		} catch (error) {
+			statusDisplay.innerText = "Server is offline (returned error: " + error + ")";
+		}
+	});
+</script>

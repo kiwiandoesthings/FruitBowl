@@ -39,7 +39,7 @@ console.log(creatorResponse);
 					</div>
 				</a>
 			</div>
-			<p>{forumResponse.data.description}</p>
+			<p id="forum-info-description">{forumResponse.data.description}</p>
 		</div>
 		<div id="topic-list">
 			{topicsResponse.data.map((topic: Topic) => (
@@ -64,11 +64,16 @@ console.log(creatorResponse);
 	#forum-info-header {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
 	#forum-info-header-right {
 		display: flex;
 		align-content: center;
+	}
+
+	#forum-info-description:empty {
+		margin: 0px;
 	}
 
 	#forum-info-area {
