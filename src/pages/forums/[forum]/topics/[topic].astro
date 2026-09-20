@@ -155,7 +155,7 @@ const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "
         const forum = document.getElementById("session-data")?.dataset.forum;
         const topic = document.getElementById("session-data")?.dataset.topic;
 
-        const response = await api(forum + "/" + topic + "/posts/" + -1, {}, "DELETE");
+        const response = await api("forums/" + forum + "/topics" + topic + "/posts/" + -1, {}, "DELETE");
         if (response.error) {
             alert("Error deleting post: " + response.data);
         } else {
