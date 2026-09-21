@@ -6,11 +6,11 @@ const isDevelopment = import.meta.env.DEV;
 Astro.response.status = 503;
 ---
 
-<Layout preface={true} title="Server Offline">
+<Layout preface={true} title="Unknown Server Error">
 	<span id="session-data" data-development={isDevelopment}></span>
 
-	<h1>Error 503 - The Server Is Down</h1>
-	<p>You can <a href="javascript:(history.back())">go back</a> if you'd like, or you can check the server status.</p>
+	<h1>Error 500 - Unknown Server Error</h1>
+	<p>You can <a href="javascript:(history.back())">go back</a> or <a href="javascript:(window.location.reload())">try again</a> if you'd like, or you can check the server status.</p>
 	<button id="check-server-button">Check Server Status</button><br><br>
 	<span id="server-status-display"></span>
 </Layout>

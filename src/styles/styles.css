@@ -12,12 +12,31 @@ body {
     background-color: lightgrey;
     min-height: 100vh;
     box-sizing: border-box;
-    padding-bottom: 50px;
+    padding-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 main {
 	max-width: 1200px;
 	margin: 0 auto;
+}
+
+footer {
+	text-align: center;
+	padding-top: 30px;
+	display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;	
+}
+
+footer span {
+	margin: 10px;
+}
+
+footer span:nth-child(3) {
+    justify-self: end;
 }
 
 #session-data {

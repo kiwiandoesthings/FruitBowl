@@ -10,6 +10,7 @@ const pfpResponse = await api("users/" + userID, {}, "GET");
 const pfpUrl = isNullOrWhitespace(pfpResponse.data.profile_picture_url as string) ? jimothy : pfpResponse.data.profile_picture_url;
 
 const authResponse = await api("auth", {}, "GET", Astro.request);
+const loggedIn = authResponse.error ? false : authResponse.data.loggedIn;
 ---
 
 <nav id="navbar">
@@ -18,8 +19,9 @@ const authResponse = await api("auth", {}, "GET", Astro.request);
 		<a href="/">Home</a>
 		<a href="/forums">Forums</a>
 		<a href="/users">Users</a>
-		<a href="/settings">Settings</a>
-		{!authResponse.data.loggedIn && (
+		{loggedIn ? (
+			<a href="/settings">Settings</a>
+		) : (
 			<a href="/login">Login</a>
 			<a href="/register">Register</a>
 		)}

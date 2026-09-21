@@ -3,6 +3,8 @@ import Layout from "../../../../layouts/Layout.astro";
 import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
 
 const forum = Astro.params.forum as string;
+
+const topicName = Astro.url.searchParams.get("topicName") || "";
 ---
 
 <Layout preface={false} title={forum + " - New Topic"}>
@@ -12,7 +14,7 @@ const forum = Astro.params.forum as string;
 	<p id="status"></p>
 	<form id="create-form" class="alone-form">
 		<label for="name-input">Topic Name: </label>
-		<input id="name-input" name="name">
+		<input id="name-input" name="name" value={topicName}>
 
 		<label for="description-input">Topic Description: </label>
 		<textarea id="description-input" name="description"></textarea>
@@ -37,7 +39,7 @@ const forum = Astro.params.forum as string;
 		if (response.error) {
 			status.innerText = "Encountered an error while creating topic: " + response.data;
 		} else {
-			window.location.href = "/forums/" + forum + "/topics/" + formData.get("name");
+			window.location.href = "/forums/" + forum + "/topics/" + formData.get("name") + "?justCreated=true";
 		}
 	});
 </script>

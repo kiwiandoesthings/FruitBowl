@@ -11,7 +11,12 @@ const topic = Astro.params.topic as string;
 const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
 const username = Astro.cookies.get("fruitbowl_username")?.value as string;
 const response = await api("users/" + userID, {}, "GET");
-const join_date = response.data.created_at;
+if (response.error) {
+	if (response.status == -1) {
+		return Astro.rewrite("/503");
+	}
+}
+const joinDate = response.data.created_at;
 
 interface Author {
 	id: string;
@@ -23,16 +28,27 @@ interface Author {
 }
 
 interface Post {
-    id: string; 
-	content: string; 
+    id: string;
+	content: string;
 	show_signature: boolean;
-	deleted: boolean; 
-	creator_id: string; 
+	deleted: boolean;
+	creator_id: string;
 	created_at: string;
 	author: Author;
 }
 
-const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "GET", Astro.request);
+const result = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "GET", Astro.request);
+if (result.error) {
+	if (response.status == -1) {
+		return Astro.rewrite("/503");
+	} else if (response.status == 404) {
+		if (Astro.url.searchParams.get("justCreated") != "1") {
+			return Astro.redirect("/forums/" + forum + "/topics/new?topicName=" + topic);
+		}
+	} else {
+		return Astro.rewrite("/500");
+	}
+}
 ---
 
 <Layout preface={false} title={forum + " - " + topic}>
@@ -41,7 +57,7 @@ const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "
 	<HeirarchyBar forum={forum} topic={topic}></HeirarchyBar>
 	<div id="topic-container">
 		<div id="posts-list">
-			{posts.data.posts.map((post: Post) => {
+			{result.data.posts.map((post: Post) => {
 				const isoDate = post.created_at.includes("Z") ? post.created_at : post.created_at.replace(" ", "T") + "Z";
 				return (
 				<div id={"post-" + post.id} class="topic-reply outline">
@@ -52,7 +68,7 @@ const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "
         					<div class="dropdown-menu hidden">
             					<button class="menu-item copy-link-button" data-post-id={post.id}>Copy Link</button>
             					{
-									post.id == posts.data.deletablePostID && (
+									post.id == result.data.posts.deletablePostID && (
                 						<button id="delete-post-button" class="menu-item">Delete</button>
             						)
 								}
@@ -67,7 +83,7 @@ const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "
 				);
 			})}
 			<div class="post-body outline">
-				<PostUserInfo userID={userID} username={username} join_date={join_date}></PostUserInfo>
+				<PostUserInfo userID={userID} username={username} join_date={joinDate}></PostUserInfo>
 				<form id="reply-form">
 					<h3 id="reply-header">Reply</h3>
 					<p id="status"></p>
@@ -148,9 +164,9 @@ const posts = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "
 
 	const deletePostButton = document.getElementById("delete-post-button") as HTMLElement;
 	deletePostButton?.addEventListener("click", async (event) => {
-		const target = event.currentTarget as HTMLElement;
-
-        if (!confirm("Are you sure you want to delete this post?")) return;
+        if (!confirm("Are you sure you want to delete this post?")) {
+			return;
+		}
 
         const forum = document.getElementById("session-data")?.dataset.forum;
         const topic = document.getElementById("session-data")?.dataset.topic;

@@ -8,6 +8,13 @@ const response = await api("users/" + userID, {}, "GET");
 const username = response.data.username;
 const description = response.data.description;
 const signature = response.data.signature;
+if (response.error) {
+	if (response.status == -1) {
+		return Astro.rewrite("503");
+	} else {
+		return Astro.redirect("500");
+	}
+}
 ---
 
 <Layout preface={true} title="Settings">

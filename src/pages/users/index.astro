@@ -16,6 +16,13 @@ const query = Astro.url.searchParams.get("query") || "";
 const searchType = Astro.url.searchParams.get("searchType") || "true";
 
 const response = await api("users/search?query=" + query + "&searchType=" + searchType, {}, "GET");
+if (response.error) {
+	if (response.status == -1) {
+		return Astro.rewrite("/503");
+	} else {
+		return Astro.rewrite("/500");
+	}
+}
 ---
 
 <Layout preface={true} title="Users">

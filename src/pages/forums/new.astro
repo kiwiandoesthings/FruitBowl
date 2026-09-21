@@ -1,6 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import HeirarchyBar from "../../components/HeirarchyBar.astro";
+
+const forumName = Astro.url.searchParams.get("forumName") || "";
 ---
 
 <Layout preface={false} title={"New Forum"}>
@@ -8,7 +10,7 @@ import HeirarchyBar from "../../components/HeirarchyBar.astro";
 	<p id="status"></p>
 	<form id="create-form" class="alone-form">
 		<label for="name-input">Forum Name: </label>
-		<input id="name-input" name="name">
+		<input id="name-input" name="name" value={forumName}>
 
 		<label for="description-input">Forum Description: </label>
 		<textarea id="description-input" name="description"></textarea>

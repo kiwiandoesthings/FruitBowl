@@ -23,7 +23,13 @@ const forumResponse = await api("forums/" + forum, {}, "GET");
 const forumCreateDate = new Date(forumResponse.data.created_at).toLocaleDateString(undefined);
 const creatorResponse = await api("users/" + forumResponse.data.creator_id, {}, "GET");
 const creatorProfilePhoto = creatorResponse.data.profile_picture_url != "" ? creatorResponse.data.profile_picture_url : jimothy;
-console.log(creatorResponse);
+if (forumResponse.error) {
+	if (forumResponse.status == -1) {
+		return Astro.rewrite("/503");
+	} else {
+		return Astro.redirect("/forums/new?forumName=" + forum);
+	}
+}
 ---
 
 <Layout preface={true} title={forum}>
