@@ -1,30 +1,30 @@
 ---
-import Layout from "../../../../layouts/Layout.astro";
-import PostUserInfo from "../../../../components/PostUserInfo.astro";
-import PostContent from "../../../../components/PostContent.astro";
-import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
-import api from "../../../../scripts/common";
+import Layout from "../../../../../../../layouts/Layout.astro";
+import PostUserInfo from "../../../../../../../components/PostUserInfo.astro";
+import PostContent from "../../../../../../../components/PostContent.astro";
+import HeirarchyBar from "../../../../../../../components/HeirarchyBar.astro";
+import api from "../../../../../../../scripts/common";
 
 const forum = Astro.params.forum as string;
 const topic = Astro.params.topic as string;
 
 const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
 const username = Astro.cookies.get("fruitbowl_username")?.value as string;
-const response = await api("users/" + userID, {}, "GET");
+const response = await api(Astro.response, "fruitbowl/", "users/guid" + userID, {}, "GET");
 if (response.error) {
 	if (response.status == -1) {
 		return Astro.rewrite("/503");
 	}
 }
-const joinDate = response.data.created_at;
+const joinDate = response.data.createdAt;
 
 interface Author {
 	id: string;
 	username: string;
 	description: string;
 	signature: string;
-	profile_picture_url: string;
-	created_at: string;
+	profilePictureUrl: string;
+	createdAt: string;
 }
 
 interface Post {
@@ -32,12 +32,12 @@ interface Post {
 	content: string;
 	show_signature: boolean;
 	deleted: boolean;
-	creator_id: string;
-	created_at: string;
+	creatorID: string;
+	createdAt: string;
 	author: Author;
 }
 
-const result = await api("forums/" + forum + "/topics/" + topic + "/posts", {}, "GET", Astro.request);
+const result = await api(Astro.response, "forums/", "forums/" + forum + "/topics/" + topic + "/posts", {}, "GET", Astro.request);
 if (result.error) {
 	if (response.status == -1) {
 		return Astro.rewrite("/503");
@@ -51,18 +51,18 @@ if (result.error) {
 }
 ---
 
-<Layout preface={false} title={forum + " - " + topic}>
+<Layout preface={false} title={forum + " - " + topic} section={"forums"}>
 	<div id="session-data" data-forum={forum} data-topic={topic}></div>
 
 	<HeirarchyBar forum={forum} topic={topic}></HeirarchyBar>
 	<div id="topic-container">
 		<div id="posts-list">
 			{result.data.posts.map((post: Post) => {
-				const isoDate = post.created_at.includes("Z") ? post.created_at : post.created_at.replace(" ", "T") + "Z";
+				const isoDate = post.createdAt.includes("Z") ? post.createdAt : post.createdAt.replace(" ", "T") + "Z";
 				return (
 				<div id={"post-" + post.id} class="topic-reply outline">
 					<div class="post-header">
-						<span class="utc-date" data-utc={isoDate}>{post.created_at}</span>
+						<span class="utc-date" data-utc={isoDate}>{post.createdAt}</span>
 						<div class="menu-container">
         					<button type="button" class="menu-trigger" aria-label="Post actions">⋮</button>
         					<div class="dropdown-menu hidden">
@@ -76,7 +76,7 @@ if (result.error) {
     					</div>	
 					</div>
 					<div class="post-body">
-						<PostUserInfo userID={post.author.id} username={post.author.username} join_date={post.author.created_at}></PostUserInfo>
+						<PostUserInfo userID={post.author.id} username={post.author.username} join_date={post.author.createdAt}></PostUserInfo>
     					<PostContent content={post.content} signature={post.show_signature ? post.author.signature : ""}></PostContent>
 					</div>
 				</div>
@@ -104,7 +104,7 @@ if (result.error) {
 </Layout>
 
 <script>
-	import api from "../../../../scripts/common";
+	import api from "../../../../../../../scripts/common";
 
 	document.querySelectorAll<HTMLElement>(".utc-date").forEach((element) => {
         const utcString = element.dataset.utc;
@@ -130,7 +130,7 @@ if (result.error) {
 		event.preventDefault();
 
 		const formData = new FormData(form);
-		const response = await api("forums/" + forum + "/topics/" + topic + "/posts", formData, "POST");
+		const response = await api(undefined, "forums/", "forums/" + forum + "/topics/" + topic + "/posts", formData, "POST");
 		if (response.error) {
 			status.innerText = "Encountered an error while posting reply: " + response.data;
 		} else {
@@ -171,7 +171,7 @@ if (result.error) {
         const forum = document.getElementById("session-data")?.dataset.forum;
         const topic = document.getElementById("session-data")?.dataset.topic;
 
-        const response = await api("forums/" + forum + "/topics" + topic + "/posts/" + -1, {}, "DELETE");
+        const response = await api(undefined, "forums/", "forums/" + forum + "/topics" + topic + "/posts/" + -1, {}, "DELETE");
         if (response.error) {
             alert("Error deleting post: " + response.data);
         } else {

@@ -1,5 +1,5 @@
 ---
-import api from '../scripts/common';
+import api, { usableProfilePicture } from '../scripts/common';
 import { Image } from 'astro:assets';
 import jimothy from '../assets/jimothy.png';
 
@@ -10,8 +10,8 @@ interface Props {
 }
 const { userID, username, join_date } = Astro.props;
 
-const pfpUrl = (await api("users/" + userID, {}, "GET")).data.profile_picture_url;
-const pfpLink = pfpUrl != "" ? pfpUrl : jimothy;
+const response = await api(Astro.response, "fruitbowl/", "users/guid/" + userID, {}, "GET");
+const pfpLink = usableProfilePicture(response.data.profilePictureUrl);
 
 const formattedDate = new Date(join_date).toLocaleDateString(undefined);
 ---

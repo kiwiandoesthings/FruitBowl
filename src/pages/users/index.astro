@@ -6,16 +6,16 @@ import api from "../../scripts/common";
 interface User {
 	id: string,
 	username: string,
-	profile_picture_url: string,
+	profilePictureUrl: string,
 	description: string,
 	signature: string,
-	created_at: string
+	createdAt: string
 };
 
 const query = Astro.url.searchParams.get("query") || "";
 const searchType = Astro.url.searchParams.get("searchType") || "true";
 
-const response = await api("users/search?query=" + query + "&searchType=" + searchType, {}, "GET");
+const response = await api(Astro.response, "fruitbowl/", "users/search?query=" + query + "&searchType=" + searchType, {}, "GET");
 if (response.error) {
 	if (response.status == -1) {
 		return Astro.rewrite("/503");
@@ -25,12 +25,12 @@ if (response.error) {
 }
 ---
 
-<Layout preface={true} title="Users">
+<Layout preface={true} title="Users" section={"forums"}>
 	<h1>Users</h1>
 	<div id="user-area">
 		<p id="status"></p>
 		<form id="user-form" class="alone-form">
-			<label>Query: <input id="search-input" name="query" value={query} required>
+			<label>Query: <input id="search-input" name="query" value={query}>
 			</label>
 			<label>
 				<input id="search-username-select" type="radio" name="searchType" value="true" checked={searchType === "true"}>Username
@@ -43,7 +43,7 @@ if (response.error) {
 	</div>
 	<div id="results-area">
 		{response.data.map((user: User) => (
-			<UserResult id={user.id} username={user.username} profile_picture_url={user.profile_picture_url} description={user.description} signature={user.signature} created_at={user.created_at}></UserResult>
+			<UserResult id={user.id} username={user.username} profilePictureUrl={user.profilePictureUrl} description={user.description} signature={user.signature} createdAt={user.createdAt}></UserResult>
 		))}
 	</div>
 </Layout>

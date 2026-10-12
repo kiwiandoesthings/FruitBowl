@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout.astro";
 Astro.response.status = 404;
 ---
 
-<Layout preface={true} title="Not Found">
+<Layout preface={true} title="Not Found" section={"fruitbowl"}>
 	<h1>Error 404 - This Page Does Not Exist</h1>
 	<p>You can <a href="javascript:(history.back())">go back</a> if you'd like.</p>
 </Layout>

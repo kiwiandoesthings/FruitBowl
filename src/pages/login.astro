@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout preface={true} title="Login">
+<Layout preface={true} title="Login" section={"fruitbowl"}>
 	<h1>Login</h1>
 	<p id="status"></p>
 	<form id="login-form" class="alone-form">
@@ -26,11 +26,11 @@ import Layout from "../layouts/Layout.astro";
 		event.preventDefault();
 
 		const formData = new FormData(form);
-		const response = await api("auth", formData, "POST");
+		const response = await api(undefined, "fruitbowl/", "auth", formData, "POST");
 		if (response.error) {
 			status.innerText = "Encountered an error while logging in: " + response.data;
 		} else {
-			window.location.href = "/users/@" + formData.get("username");
+			//window.location.href = "/users/@" + formData.get("username");
 		}
 	});
 </script>

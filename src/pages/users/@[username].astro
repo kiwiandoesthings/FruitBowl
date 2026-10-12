@@ -2,17 +2,17 @@
 import { Image } from 'astro:assets';
 import jimothy from '../../assets/jimothy.png';
 import Layout from "../../layouts/Layout.astro";
-import api from "../../scripts/common";
+import api, { usableProfilePicture } from "../../scripts/common";
 
 export const prerender = false;
 
 let username = Astro.params.username?.replace("@", "") as string;
-let profilePictureUrl = jimothy;
+let profilePictureUrl;
 let description = "";
 let signature = "";
 let appendMessage = "";
 
-const response = await api("users/name/" + username, {}, "GET");
+const response = await api(Astro.response, "fruitbowl/", "users/name/" + username, {}, "GET");
 if (response.error) {
 	if (response.status == 404) {
 		appendMessage = "Does Not Exist";
@@ -20,15 +20,13 @@ if (response.error) {
 		return Astro.rewrite("/503");
 	}
 } else {
-	if (response.data.profile_picture_url != "") {
-		profilePictureUrl = response.data.profile_picture_url;
-	}
+	profilePictureUrl = usableProfilePicture(response.data.profilePictureUrl);
 	description = response.data.description;
 	signature = response.data.signature;
 }
 ---
 
-<Layout preface={false} title={username}>
+<Layout preface={false} title={username} section={"forums"}>
 	<div id="profile-container">
 		<div id="sidebar-left">
         	<div class="section">Example Stuff</div>

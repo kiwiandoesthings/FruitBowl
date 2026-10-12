@@ -1,7 +1,7 @@
 {
   "name": "kiwi-bowl-forums",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -9,21 +9,25 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-	"deploy": "astro build && wrangler deploy",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro",
     "generate-types": "wrangler types"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.2",
     "@astrojs/node": "^11.1.5",
+    "@astrojs/preact": "^6.0.5",
+    "@microsoft/signalr": "^10.0.11",
     "argon2": "^0.45.1",
     "astro": "^7.3.2",
+    "preact": "^10.29.8",
     "wrangler": "^4.133.0"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
-    "@types/node": "^22.20.2"
+    "@types/node": "^22.20.2",
+    "@vitejs/plugin-basic-ssl": "^2.3.0"
   }
 }

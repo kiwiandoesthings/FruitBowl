@@ -5,7 +5,7 @@ import HeirarchyBar from "../../components/HeirarchyBar.astro";
 const forumName = Astro.url.searchParams.get("forumName") || "";
 ---
 
-<Layout preface={false} title={"New Forum"}>
+<Layout preface={false} title={"New Forum"} section={"forums"}>
 	<HeirarchyBar forum={"new"} topic={undefined}></HeirarchyBar>
 	<p id="status"></p>
 	<form id="create-form" class="alone-form">
@@ -29,11 +29,11 @@ const forumName = Astro.url.searchParams.get("forumName") || "";
 		event.preventDefault();
 
 		const formData = new FormData(form);
-		const response = await api("forums/", formData, "POST");
+		const response = await api(undefined, "forums/", "forums/", formData, "POST");
 		if (response.error) {
 			status.innerText = "Encountered an error while creating forum: " + response.data;
 		} else {
-			window.location.href = "/forums/" + formData.get("name");
+			window.location.href = "/forums/forum" + formData.get("name");
 		}
 	});
 </script>

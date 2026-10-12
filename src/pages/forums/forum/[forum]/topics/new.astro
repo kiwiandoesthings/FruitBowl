@@ -1,13 +1,13 @@
 ---
-import Layout from "../../../../layouts/Layout.astro";
-import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
+import Layout from "../../../../../layouts/Layout.astro";
+import HeirarchyBar from "../../../../../components/HeirarchyBar.astro";
 
 const forum = Astro.params.forum as string;
 
 const topicName = Astro.url.searchParams.get("topicName") || "";
 ---
 
-<Layout preface={false} title={forum + " - New Topic"}>
+<Layout preface={false} title={forum + " - New Topic"} section={"forums"}>
 	<div id="session-data" data-forum={forum}></div>
 
 	<HeirarchyBar forum={forum} topic={"new"}></HeirarchyBar>
@@ -24,7 +24,7 @@ const topicName = Astro.url.searchParams.get("topicName") || "";
 </Layout>
 
 <script>
-	import api from "../../../../scripts/common";
+	import api from "../../../../../scripts/common";
 
 	const form = document.getElementById("create-form")! as HTMLFormElement;
 	const status = document.getElementById("status")!;
@@ -35,11 +35,11 @@ const topicName = Astro.url.searchParams.get("topicName") || "";
 		event.preventDefault();
 
 		const formData = new FormData(form);
-		const response = await api("forums/" + forum + "/topics", formData, "POST");
+		const response = await api(undefined, "forums/", "forums/" + forum + "/topics", formData, "POST");
 		if (response.error) {
 			status.innerText = "Encountered an error while creating topic: " + response.data;
 		} else {
-			window.location.href = "/forums/" + forum + "/topics/" + formData.get("name") + "?justCreated=true";
+			window.location.href = "/forums/forum/" + forum + "/topics/topic/" + formData.get("name") + "?justCreated=true";
 		}
 	});
 </script>

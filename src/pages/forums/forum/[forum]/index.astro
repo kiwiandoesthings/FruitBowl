@@ -1,10 +1,10 @@
 ---
-import Layout from "../../layouts/Layout.astro";
 import { Image } from "astro:assets";
-import ForumTopic from "../../components/ForumTopic.astro";
-import HeirarchyBar from "../../components/HeirarchyBar.astro";
-import jimothy from "../../assets/jimothy.png";
-import api from "../../scripts/common";
+import Layout from "../../../../layouts/Layout.astro";
+import ForumTopic from "../../../../components/ForumTopic.astro";
+import HeirarchyBar from "../../../../components/HeirarchyBar.astro";
+import jimothy from "../../../../assets/jimothy.png";
+import api from "../../../../scripts/common";
 
 const forum = Astro.params.forum as string;
 
@@ -12,17 +12,17 @@ interface Topic {
     id: string; 
 	name: string; 
 	description: string; 
-	total_posts: number; 
+	totalPosts: number; 
 	locked: boolean; 
-	creator_id: string; 
-	created_at: string;
+	creatorID: string; 
+	createdAt: string;
 }
 
-const topicsResponse = await api("forums/" + forum + "/topics", {}, "GET");
-const forumResponse = await api("forums/" + forum, {}, "GET");
-const forumCreateDate = new Date(forumResponse.data.created_at).toLocaleDateString(undefined);
-const creatorResponse = await api("users/" + forumResponse.data.creator_id, {}, "GET");
-const creatorProfilePhoto = creatorResponse.data.profile_picture_url != "" ? creatorResponse.data.profile_picture_url : jimothy;
+const topicsResponse = await api(Astro.response, "forums/", "forums/" + forum + "/topics", {}, "GET");
+const forumResponse = await api(Astro.response, "forums/", "forums/" + forum, {}, "GET");
+const forumCreateDate = new Date(forumResponse.data.createdAt).toLocaleDateString(undefined);
+const creatorResponse = await api(Astro.response, "fruitbowl/", "users/" + forumResponse.data.creatorID, {}, "GET");
+const creatorProfilePhoto = creatorResponse?.data?.profilePictureUrl || jimothy;
 if (forumResponse.error) {
 	if (forumResponse.status == -1) {
 		return Astro.rewrite("/503");
@@ -32,7 +32,7 @@ if (forumResponse.error) {
 }
 ---
 
-<Layout preface={true} title={forum}>
+<Layout preface={true} title={forum} section={"forums"}>
 	<HeirarchyBar forum={forum} topic={undefined}></HeirarchyBar>
 	<div id="topic-area">
 		<div id="forum-info-area">
@@ -49,10 +49,10 @@ if (forumResponse.error) {
 		</div>
 		<div id="topic-list">
 			{topicsResponse.data.map((topic: Topic) => (
-				<ForumTopic forum={forum} name={topic.name} description={topic.description} total_posts={topic.total_posts} locked={topic.locked} creator_id={topic.creator_id} created_at={topic.created_at}></ForumTopic>
+				<ForumTopic forum={forum} name={topic.name} description={topic.description} totalPosts={topic.totalPosts} locked={topic.locked} creatorID={topic.creatorID} createdAt={topic.createdAt}></ForumTopic>
 			))}
 		</div>
-		<a id="new-topic-button" href={"/forums/" + forum + "/topics/new"}>Start a New Topic</a>
+		<a id="new-topic-button" href={"/forums/forum/" + forum + "/topics/new"}>Start a New Topic</a>
 	</div>
 </Layout>
 
@@ -61,6 +61,7 @@ if (forumResponse.error) {
 		display: flex;
 		flex-direction: column;
 		gap: 50px;
+		min-width: 50%;
 	}
 
 	#forum-info-area {

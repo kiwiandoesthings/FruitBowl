@@ -1,19 +1,20 @@
 ---
 import { Image } from "astro:assets";
 import jimothy from "../assets/jimothy.png";
+import { usableProfilePicture } from "../scripts/common";
 
 interface Props {
 	id: string,
 	username: string,
-	profile_picture_url: string,
+	profilePictureUrl: string,
 	description: string,
 	signature: string,
-	created_at: string
+	createdAt: string
 };
 
-const { id, username, profile_picture_url, description, signature, created_at } = Astro.props;
-const createdAtString = new Date(created_at).toLocaleDateString(undefined);
-const profilePictureUrl = (profile_picture_url != "" ? profile_picture_url : jimothy) as string;
+const { id, username, profilePictureUrl, description, signature, createdAt } = Astro.props;
+const createdAtString = new Date(createdAt).toLocaleDateString(undefined);
+const profilePictureUrl = usableProfilePicture(profilePictureUrl);
 ---
 
 <div class="user-result-card">

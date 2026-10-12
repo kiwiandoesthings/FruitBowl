@@ -1,0 +1,47 @@
+---
+interface Props {
+	room: Room;
+}
+
+interface Room {
+	id: string;
+	name: string;
+	description: string;
+	totalMessages: number;
+}
+
+const { room } = Astro.props;
+---
+
+<a class="link-nostyle" href={`/chat/rooms/room/` + room.id}>
+	<div class="room-result">
+		<div class="room-result-header">
+			<h3 class="room-result-name">{room.name}</h3>
+			<h3 class="room-result-timestamp">{room.totalMessages + (room.totalMessages == 1 ? " Message" : " Messages")}</h3>
+		</div>
+		<p class="room-result-description">{room.description}</p>
+	</div>
+</a>
+
+<style>
+	.room-result {
+		background-color: grey;
+		box-shadow: 4px 4px 0px 0px black;
+		padding: 10px;
+	}
+
+	.room-result-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		gap: 30px;
+	}
+
+	.room-result-name {
+		margin: 0px;
+	}
+
+	.room-result-description:empty {
+		margin: 0px;
+	}
+</style>

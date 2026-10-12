@@ -4,8 +4,9 @@ import Navbar from "../components/Navbar.astro";
 interface Props {
 	preface?: boolean;
   	title: string;
+	section: string;
 }
-const { preface, title: rawTitle } = Astro.props;
+const { preface, title: rawTitle, section } = Astro.props;
 const pageTitle = preface ? "FruitBowlForums" + (rawTitle.length > 1 ? " - " : "") + rawTitle : rawTitle;
 ---
 
@@ -21,18 +22,13 @@ const pageTitle = preface ? "FruitBowlForums" + (rawTitle.length > 1 ? " - " : "
 		<script src="../scripts/common.js"></script>
 		<title>{pageTitle}</title>
 	</head>
-	<body>
+	<body id={section + "-body"}>
 		<div>
-			<Navbar></Navbar>
-			<main>
+			<Navbar section={section}></Navbar>
+			<main id={section + "-main"}>
 				<slot name="header"/>
 				<slot/>
 			</main>
 		</div>
-		<footer>
-			<span></span>
-			<span>© 2026 Kiwian</span>
-			<span><a href="https://forums.kiwiandoesthings.place">FruitBowlForums v1.0</a></span>
-		</footer>
 	</body>
 </html>

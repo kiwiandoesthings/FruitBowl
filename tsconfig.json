@@ -11,6 +11,8 @@
   "compilerOptions": {
     "types": [
       "node"
-    ]
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   }
 }

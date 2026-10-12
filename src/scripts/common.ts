@@ -1,10 +1,18 @@
+import jimothy from '../assets/jimothy.png';
+
 const isDevelopment = import.meta.env.DEV;
-export const apiString = isDevelopment ? "http://api.test.kiwiandoesthings.place:5201/fruitbowl/" : "https://api.kiwiandoesthings.place/fruitbowl/";
+export const apiString = isDevelopment ? "https://api.test.kiwiandoesthings.place:7164/" : "https://api.kiwiandoesthings.place/";
 
 const serverErrorMessage = "Server is down currently. Please try again later.";
 const netErrorMessage = "Encountered a network error. Please try again.";
-export default async function api(route: string, body: any, method: string, request?: Request | null, customHeaders?: HeadersInit): Promise<ApiResponse<any>> {
-    try {
+export default async function api(astroResponse: { headers: Headers} | undefined, section: string, route: string, body: any, method: string, request?: Request | null, customHeaders?: HeadersInit): Promise<ApiResponse<any>> {
+    if (typeof window === 'undefined' && import.meta.env.DEV) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
+	
+	const usableApiString = apiString + section;
+	let url = usableApiString + route;
+	try {
         const isFormData = body instanceof FormData;
         const cookieHeader = request ? request.headers.get("cookie") || "" : "";
 
@@ -16,8 +24,6 @@ export default async function api(route: string, body: any, method: string, requ
                 ...customHeaders
             }
         };
-
-        let url = apiString + route;
 
         if (method.toUpperCase() === "GET") {
             let cleanEntries: [string, string][] = [];
@@ -46,12 +52,20 @@ export default async function api(route: string, body: any, method: string, requ
         }
 
         const response = await fetch(url, fetchOptions);
+		if (astroResponse != undefined) {
+			const cookies = response.headers.getSetCookie();
+    		for (const cookie of cookies) {
+    	    	astroResponse.headers.append("set-cookie", cookie);
+    		}
+		}
 
         if (response.status == 500) {
             return new ApiResponse<string>(true, 500, serverErrorMessage);
         } else if (!response.ok) {
             const unknownErrorMessage = await response.text();
-            console.log(unknownErrorMessage);
+			if (unknownErrorMessage.length > 0) {
+				log("Unknwon error: " + unknownErrorMessage);
+			}
             return new ApiResponse<string>(true, response.status, "Error " + response.status + ": " + unknownErrorMessage);
         }
 
@@ -72,8 +86,9 @@ export default async function api(route: string, body: any, method: string, requ
 
         return new ApiResponse<any>(!response.ok, response.status, data, responseHeaders);
     } catch (error) {
-        console.log(netErrorMessage);
-        console.error(error); 
+        log(netErrorMessage);
+		log("Error at: " + url);
+        log(error instanceof Error ? error.message : String(error));
         return new ApiResponse<string>(true, -1, netErrorMessage);
     }
 }
@@ -94,4 +109,12 @@ class ApiResponse<T> {
 
 export function isNullOrWhitespace(str: string | null | undefined): boolean {
     return !str || str.trim().length === 0;
-};
+}
+
+export function usableProfilePicture(returnedUrl: string | undefined): any {
+	return returnedUrl == undefined ? jimothy : (isNullOrWhitespace(returnedUrl) ? jimothy : returnedUrl);
+}
+
+function log(message: string) {
+	console.log("FruitBowl>> " + message);
+}

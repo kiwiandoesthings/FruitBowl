@@ -1,8 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import api from "../scripts/common";
+
+const response = await api(Astro.response, "fruitbowl/", "auth", {}, "GET", Astro.request);
 ---
 
-<Layout preface={true} title="">
-	<h1>Welcome to FruitBowlForums</h1>
-	<p>This is a homemade forums solution for all of your highly important forum needs.</p>
+<Layout preface={true} title="" section={"fruitbowl"}>
+	<h1>Welcome to FruitBowl</h1>
+	<p>This is an experimental all-in-one social media platform. Fruitbowl aims to combine ProtoCall, KiwiBlog, and BlueberryForums (to be renamed) into one unifed place.</p>
 </Layout>

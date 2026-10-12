@@ -1,0 +1,40 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import RoomResult from "../../../components/RoomResult.astro";
+import api from "../../../scripts/common";
+
+interface Room {
+	id: string;
+	name: string;
+	description: string;
+	totalMessages: number;
+}
+
+const response = await api(Astro.response, "protocall/", "rooms/known", {}, "GET", Astro.request);
+if (response.error) {
+	if (response.status == -1) {
+		return Astro.rewrite("/503");
+	} else {
+		return Astro.rewrite("/500");
+	}
+}
+console.log(response.data.rooms);
+---
+
+<Layout title="ProtoCall" section="chat">
+	<div id="room-list">
+		<h1>All Rooms</h1>
+		{response.data.rooms.map((room: Room) => (
+			<RoomResult room={room}></RoomResult>
+		))}
+	</div>
+</Layout>
+
+<style>
+	#room-list {
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+</style>

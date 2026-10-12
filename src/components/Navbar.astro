@@ -1,30 +1,55 @@
 ---
 import { Image } from 'astro:assets';
 import jimothy from '../assets/jimothy.png';
-import api, { isNullOrWhitespace } from "../scripts/common.ts";
+import api, { usableProfilePicture } from "../scripts/common.ts";
+
+interface Props {
+	section: string;
+}
+
+const { section } = Astro.props;
 
 const userID = Astro.cookies.get("fruitbowl_user_id")?.value as string;
 const username = Astro.cookies.get("fruitbowl_username")?.value as string;
 
-const pfpResponse = await api("users/" + userID, {}, "GET");
-const pfpUrl = isNullOrWhitespace(pfpResponse.data.profile_picture_url as string) ? jimothy : pfpResponse.data.profile_picture_url;
+const pfpResponse = await api(Astro.response, "fruitbowl/", "users/guid/" + userID, {}, "GET");
+const pfpUrl = usableProfilePicture(pfpResponse.data.profilePictureUrl);
 
-const authResponse = await api("auth", {}, "GET", Astro.request);
+const authResponse = await api(Astro.response, "fruitbowl/", "auth", {}, "GET", Astro.request);
 const loggedIn = authResponse.error ? false : authResponse.data.loggedIn;
 ---
 
 <nav id="navbar">
-	<a href={`/users/@${username}`}><Image src={pfpUrl} alt="Your Profile" quality="max" loading="eager" fetchpriority="high" width={64} height={64}></Image></a>
-	<div id="link-area">
-		<a href="/">Home</a>
-		<a href="/forums">Forums</a>
-		<a href="/users">Users</a>
-		{loggedIn ? (
-			<a href="/settings">Settings</a>
-		) : (
-			<a href="/login">Login</a>
-			<a href="/register">Register</a>
-		)}
+	<a href={`/users/@${username}`}><Image id="navbar-profile-picture" src={pfpUrl} alt="Your Profile" quality="max" loading="eager" fetchpriority="high" width={64} height={64}></Image></a>
+	<div id="link-container">
+		<div class="link-area">
+			{section === "fruitbowl" ? (
+				<>
+					<a href="/users">Users</a>
+					{loggedIn ? (
+						<a href="/settings">Settings</a>
+					) : (
+						<>
+							<a href="/login">Login</a>
+							<a href="/register">Register</a>
+						</>
+					)}
+				</>
+			) : section === "forums" ? (
+				<a href="/forums">All Forums</a>
+				<a href="/forums/favorites">Favorites</a>
+			) : section == "chat" ? (
+				<a href="/chat">Chat</a>
+			) : section == "blogs" ? (
+				<a href="/blogs">Blogs</a>
+			) : (<></>)}
+		</div>
+		<div class="link-area">
+			<a href="/">Fruitbowl</a>
+			<a href="/forums">BlueberryForums</a>
+			<a href="/chat">ProtoCall</a>
+			<a href="/blog">KiwiBlog</a>
+		</div>
 	</div>
 </nav>
 
@@ -36,16 +61,24 @@ const loggedIn = authResponse.error ? false : authResponse.data.loggedIn;
 		flex-direction: row;
 		background-color: black;
 		align-items: center;
+	}
+
+	#link-container {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 100%;
 		gap: 20px;
 	}
 
-	#link-area {
+	.link-area {
 		display: flex;
 		flex-direction: row;
 		gap: 20px;
+		margin: 0px 20px;
 	}
 
-	#link-area a {
+	.link-area a {
 		color: white;
 	}
 
@@ -62,3 +95,10 @@ const loggedIn = authResponse.error ? false : authResponse.data.loggedIn;
         object-fit: cover;
     }
 </style>
+
+<script define:vars={{ jimothy: jimothy.src }} is:inline>
+	const profilePictureElement = document.getElementById("navbar-profile-picture");
+	profilePictureElement?.addEventListener("error", (event) => {
+		profilePictureElement.src = jimothy;
+	});
+</script>

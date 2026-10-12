@@ -2,10 +2,10 @@
 import Layout from "../../layouts/Layout.astro";
 import api from "../../scripts/common";
 
-const auth = await api("auth", {}, "GET", Astro.request);
+const auth = await api(Astro.response, "fruitbowl/", "auth", {}, "GET", Astro.request);
 ---
 
-<Layout preface={true} title="Auth Debug">
+<Layout preface={true} title="Auth Debug" section={"fruitbowl"}>
 	<h1>{auth.data.loggedIn == false ? "Not Logged In" : "Logged In"}</h1>
 	<h1>{auth.data.username ?? "N/A"}</h1>
 </Layout>

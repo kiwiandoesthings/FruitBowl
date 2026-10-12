@@ -2,12 +2,12 @@
 interface Props {
 	name: string;
 	description: string;
-	creator_id: string;
-	created_at: string;
+	creatorID: string;
+	createdAt: string;
 }
-const { name, description, creator_id, created_at } = Astro.props;
+const { name, description, creatorID, createdAt } = Astro.props;
 ---
-<a class="link-nostyle" href={`/forums/${name}`}>
+<a class="link-nostyle" href={`/forums/forum/${name}`}>
 	<div class="forum">
 		<div class="forum-header">
 			<h3 class="forum-title">{name}</h3>

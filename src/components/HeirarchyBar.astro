@@ -9,7 +9,7 @@ const first = forum != undefined ? ">" : "";
 const second = topic != undefined ? ">" : "";
 ---
 
-<h1 class="link-nostyle"><a href="/forums">All Forums</a> {first} <a href={"/forums/" + forum}>{forum ?? ""}</a> {second} <a href={"/forums/" + forum + "/topics/" + topic}>{topic ?? ""}</a></h1>
+<h1><a class="link-nostyle" href="/forums">All Forums</a> {first} <a class="link-nostyle" href={"/forums/forum/" + forum}>{forum ?? ""}</a> {second} <a class="link-nostyle" href={"/forums/forum/" + forum + "/topics/topic/" + topic}>{topic ?? ""}</a></h1>
 
 <style>
 </style>
